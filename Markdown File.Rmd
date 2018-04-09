@@ -12,4 +12,22 @@ library(tidyverse)
 library(sf)
 library(raster)
 library(macleish)
+library(leaflet)
 ```
+
+Trying to get elevation data:
+```{r}
+elevation <- mass_gis(layer = "contours250k")
+```
+
+
+Plotting:
+```{r}
+macleish_elevation <- elevation %>%
+ st_join(data = macleish_layers[["boundary"]], join = st_within, left = FALSE)
+
+leaflet() %>%
+  addTiles() %>%
+  addPolylines(data = elevation)
+```
+
