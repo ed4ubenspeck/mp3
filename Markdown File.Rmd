@@ -21,13 +21,12 @@ elevation <- mass_gis(layer = "contours250k")
 ```
 
 
-Plotting:
+Macleish elevation data:
 ```{r}
-macleish_elevation <- elevation %>%
- st_join(data = macleish_layers[["boundary"]], join = st_within, left = FALSE)
+elevation_sf <- elevation %>%
+  st_as_sf()
 
-leaflet() %>%
-  addTiles() %>%
-  addPolylines(data = elevation)
+elevation_macleish <- elevation_sf %>%
+  st_intersection(macleish_layers[["boundary"]])
 ```
 
