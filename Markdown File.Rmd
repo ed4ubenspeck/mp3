@@ -28,37 +28,16 @@ elevation_sf <- elevation %>%
 
 elevation_macleish <- elevation_sf %>%
   st_intersection(macleish_layers[["boundary"]])
+
 ```
 
 Testing plots
 ```{r}
-plot <- leaflet() %>%
-  addPolygons(data = macleish_layers[["boundary"]], weight = 1) %>%
-  addPolygons(data = macleish_layers[["trails"]], popup = ~name) %>% 
-  addPolygons(data = elevation_macleish)
 
-trails_elevation <- elevation_macleish %>%
-  st_join(macleish_layers[["trails"]], join = st_crosses)
+el_mac <- elevation_macleish %>%
+  mutate(char_con = as.character(CONTOUR_FT))
 
-plot_trails <- leaflet() %>%
-  addPolygons(data = macleish_layers[["boundary"]], weight = 1) %>%
-  addPolygons(data = macleish_layers[["trails"]], popup = ~name) %>%
-  addPolygons(data = macleish_layers[["streams"]])
-
-
-
-
-
-
-
-
-
-base_plot <- leaflet() %>%
-  addPolygons(data = macleish_layers[["buildings"]], 
-              weight = 1, popup = ~name) %>%
-  addPolygons(data = macleish_layers[["forests"]], 
-              weight = 1, fillOpacity = 0.2, popup = ~ Sheet1__Na)
-
+color_fact <- colorFactor("Greens", el_mac$CONTOUR_FT)
 
 m <- leaflet() %>%
   # Base groups
@@ -66,20 +45,9 @@ m <- leaflet() %>%
   addProviderTiles("Esri.WorldTopoMap", group = "Topography") %>%
   addProviderTiles("Esri.WorldImagery", group = "Satellite") %>%
   addProviderTiles("Stamen.TonerLite", group = "Toner Lite") %>%
-    addPolygons(data = macleish_layers[["boundary"]], weight = 1, fillOpacity = 0.01, group = "Boundaries")
-
-
-
-
-# base_1 <- m %>%
-#   addPolylines(data = elevation_macleish, weight = 0.5, popup = ~CONTOUR_FT) %>%
-#   addPolylines(data = macleish_layers[["trails"]], weight = 2, popup = ~name)
-
-# base_2 <- m %>%
-#   addPolygons(data = join) %>%
-#   addPolylines(data = macleish_layers[["trails"]], weight = 2, popup = ~name)
-# 
-# join <- elevation_macleish %>%
-#   st_join(macleish_layers[["trails"]], join = st_crosses, left = FALSE) 
+    addPolygons(data = macleish_layers[["boundary"]], weight = 1, fillOpacity = 0.01, group = "Boundaries") %>%
+  #other stuff
+  addPolygons(data = el_mac, popup = ~char_con, color = ~color_fact(CONTOUR_FT))
+ 
   
 ```
