@@ -38,6 +38,7 @@ el_mac <- elevation_macleish %>%
   mutate(char_con = as.character(CONTOUR_FT))
 
 color_fact <- colorFactor("Greens", el_mac$CONTOUR_FT)
+color_fact2 <- colorFactor("Set1", macleish_layers[["trails"]]$name)
 
 m <- leaflet() %>%
   # Base groups
@@ -47,7 +48,8 @@ m <- leaflet() %>%
   addProviderTiles("Stamen.TonerLite", group = "Toner Lite") %>%
     addPolygons(data = macleish_layers[["boundary"]], weight = 1, fillOpacity = 0.01, group = "Boundaries") %>%
   #other stuff
-  addPolygons(data = el_mac, popup = ~char_con, color = ~color_fact(CONTOUR_FT))
+  addPolygons(data = el_mac, popup = ~char_con, color = ~color_fact(CONTOUR_FT)) %>%
+  addPolylines(data = macleish_layers[["trails"]], weight = 4, popup = ~name, color = ~color_fact2(name))
  
   
 ```
