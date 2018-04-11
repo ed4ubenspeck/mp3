@@ -15,21 +15,21 @@ library(macleish)
 library(leaflet)
 ```
 
-Trying to get elevation data:
-```{r}
-elevation <- mass_gis(layer = "contours250k")
-```
+<!-- Trying to get elevation data: -->
+<!-- ```{r} -->
+<!-- elevation <- mass_gis(layer = "contours250k") -->
+<!-- ``` -->
 
 
-Macleish elevation data:
-```{r}
-elevation_sf <- elevation %>%
-  st_as_sf()
+<!-- Macleish elevation data: -->
+<!-- ```{r} -->
+<!-- elevation_sf <- elevation %>% -->
+<!--   st_as_sf() -->
 
-elevation_macleish <- elevation_sf %>%
-  st_intersection(macleish_layers[["boundary"]])
+<!-- elevation_macleish <- elevation_sf %>% -->
+<!--   st_intersection(macleish_layers[["boundary"]]) -->
 
-```
+<!-- ``` -->
 
 Aggregating trail segments: **Do lengths change based on projection?
 ```{r}
