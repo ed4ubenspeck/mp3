@@ -62,4 +62,12 @@ m <- leaflet() %>%
 
 ```
 
+Trail and elevation intersections:
+```{r}
+test_data <- total_trails %>%
+filter(name == "Porcupine Trail")
+
+function_test <- contour_char %>%
+  st_join(test_data, join = st_intersects, left=FALSE)
+```
 
