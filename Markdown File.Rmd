@@ -67,7 +67,25 @@ Trail and elevation intersections:
 test_data <- total_trails %>%
 filter(name == "Porcupine Trail")
 
-function_test <- contour_char %>%
-  st_join(test_data, join = st_intersects, left=FALSE)
+test_sf <- st_sf(test_data)
+
+test_data1 <- contour_char %>%
+  st_join(test_sf, join = st_intersects, left = FALSE)
+
+trails_by_name <- c("Driveway", "Eastern Loop", "Easy Out", "entry trail", "Poplar Hill Road", "Porcupine Trail", "Snowmobile Trail", "Vernal Pool Loop", "Western Loop")
+
+trail_tables <- function(trail_name){
+  total_trails %>%
+  filter(name == trail_name)
+}
+  
+aggregate <- lapply(trails_by_name, trail_tables)
+  
+max_grade <- function(trail_table){  
+  contour_char %>%
+  st_join(trail_table, join = st_intersects, left=FALSE)
+}
+
+max_grade_tables <- lapply(aggregate, max_grade)
 ```
 
