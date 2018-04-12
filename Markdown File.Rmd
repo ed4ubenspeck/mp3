@@ -8,7 +8,6 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-library(dplyr)
 library(sf)
 library(raster)
 library(macleish)
@@ -48,7 +47,7 @@ m <- leaflet() %>%
 
 ```
 
-Trail and elevation intersections:
+Total change in grade dataframe
 
 ```{r}
 ## list of trail names to apply to function
@@ -63,25 +62,30 @@ trail_tables <- function(trail_name){
 ## making a list of dataframes for each trail  
 aggregate <- lapply(trails_by_name, trail_tables)
 
-## function to join each trail table with elevation layer and find max grade
+## function to join each trail table with elevation layer and find max grade, average grade, 
 total_change_grade <- function(trail_table){  
   contour_char %>%
   st_join(trail_table, join = st_intersects, left=FALSE) %>%
     group_by(name) %>%
     mutate(total_grade = max(ELEV_M) - min(ELEV_M)) %>%
-    head(1) %>%
-    as.data.frame(trail_table)
+    mutate(avg_grade = mean(ELEV_M)) %>%
+    mutate(difference = c(NA, diff(ELEV_M))) %>%
+    arrange(desc(difference)) %>%
+    na.omit(difference) %>%
+    as.data.frame(trail_table) %>%
+    head(1)
 }
 
 ## making a list of joined tables
 total_change_grade_tables <- lapply(aggregate, total_change_grade)
 
-df <- do.call("rbind", total_change_grade_tables) %>%
-  select(name, total_grade)
+run <- trail_tables("Porcupine Trail")
+run1 <- total_change_grade(run)
 
-## extracting tables
-# for (i in seq(total_change_grade_tables))
-#   assign(paste0("df", i), total_change_grade_tables[[i]])
+## informative dataframe
+grade_tables <- do.call("rbind", total_change_grade_tables) %>%
+  dplyr::select(name, total_grade_meters = total_grade, avg_grade_meters = avg_grade, total_length, max_change_grade = difference)
+
 
 ```
 
