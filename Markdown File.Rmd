@@ -90,8 +90,14 @@ First draft function for scoring trail length:
 
 ```{r}
 scoring <- grade_tables %>%
-  mutate(grade_score = if_else(total_grade_meters <= 5, 1, if_else(total_grade_meters > 5 & total_grade_meters <= 20, 2, if_else(total_grade_meters > 20 & total_grade_meters < 40, 3, if_else(total_grade_meters >= 40 & total_grade_meters <= 50, 4,
-         ifelse(total_grade_meters > 50, 5, 5))))))
+  mutate(total_grade_score = if_else(total_grade_meters <= 5, 1, if_else(total_grade_meters > 5 & total_grade_meters <= 20, 2, if_else(total_grade_meters > 20 & total_grade_meters < 40, 3, if_else(total_grade_meters >= 40 & total_grade_meters <= 50, 4,
+         ifelse(total_grade_meters > 50, 5, 5)))))) %>%
+  mutate(total_length_score = if_else(max_change_grade <= 5, 1,
+                                      if_else(max_change_grade > 5 & max_change_grade <= 15, 2,
+                                              if_else(max_change_grade > 15 & max_change_grade <= 30, 3,
+                                                      if_else(max_change_grade > 30 & max_change_grade <= 45, 4,
+                                                              if_else(max_change_grade > 45 & max_change_grade < 60, 5,
+                                                                      if_else(max_change_grade >= 60, 6, 6)))))))
 ```
 
 summarise(total_score = score + score)
