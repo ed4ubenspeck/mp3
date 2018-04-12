@@ -8,28 +8,14 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-library(tidyverse)
+library(dplyr)
 library(sf)
 library(raster)
 library(macleish)
 library(leaflet)
+library(tidyverse)
 ```
 
-<!-- Trying to get elevation data: -->
-<!-- ```{r} -->
-<!-- elevation <- mass_gis(layer = "contours250k") -->
-<!-- ``` -->
-
-
-<!-- Macleish elevation data: -->
-<!-- ```{r} -->
-<!-- elevation_sf <- elevation %>% -->
-<!--   st_as_sf() -->
-
-<!-- elevation_macleish <- elevation_sf %>% -->
-<!--   st_intersection(macleish_layers[["boundary"]]) -->
-
-<!-- ``` -->
 
 Aggregating trail segments: **Do lengths change based on projection?
 ```{r}
@@ -63,29 +49,39 @@ m <- leaflet() %>%
 ```
 
 Trail and elevation intersections:
+
 ```{r}
-test_data <- total_trails %>%
-filter(name == "Porcupine Trail")
-
-test_sf <- st_sf(test_data)
-
-test_data1 <- contour_char %>%
-  st_join(test_sf, join = st_intersects, left = FALSE)
-
+## list of trail names to apply to function
 trails_by_name <- c("Driveway", "Eastern Loop", "Easy Out", "entry trail", "Poplar Hill Road", "Porcupine Trail", "Snowmobile Trail", "Vernal Pool Loop", "Western Loop")
 
+## function to filter by trail name
 trail_tables <- function(trail_name){
   total_trails %>%
   filter(name == trail_name)
 }
-  
+
+## making a list of dataframes for each trail  
 aggregate <- lapply(trails_by_name, trail_tables)
-  
-max_grade <- function(trail_table){  
+
+## function to join each trail table with elevation layer and find max grade
+total_change_grade <- function(trail_table){  
   contour_char %>%
-  st_join(trail_table, join = st_intersects, left=FALSE)
+  st_join(trail_table, join = st_intersects, left=FALSE) %>%
+    group_by(name) %>%
+    mutate(total_grade = max(ELEV_M) - min(ELEV_M)) %>%
+    head(1) %>%
+    as.data.frame(trail_table)
 }
 
-max_grade_tables <- lapply(aggregate, max_grade)
+## making a list of joined tables
+total_change_grade_tables <- lapply(aggregate, total_change_grade)
+
+df <- do.call("rbind", total_change_grade_tables) %>%
+  select(name, total_grade)
+
+## extracting tables
+# for (i in seq(total_change_grade_tables))
+#   assign(paste0("df", i), total_change_grade_tables[[i]])
+
 ```
 
