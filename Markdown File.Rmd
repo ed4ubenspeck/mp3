@@ -69,7 +69,7 @@ total_change_grade <- function(trail_table){
     group_by(name) %>%
     mutate(total_grade = max(ELEV_M) - min(ELEV_M)) %>%
     mutate(avg_grade = mean(ELEV_M)) %>%
-    mutate(difference = c(NA, diff(ELEV_M))) %>%
+    mutate(difference = c(diff(ELEV_M), 0)) %>%
     arrange(desc(difference)) %>%
     na.omit(difference) %>%
     as.data.frame(trail_table) %>%
@@ -91,11 +91,12 @@ slope_table <- function(trail_table){
     group_by(name) %>%
     mutate(total_grade = max(ELEV_M) - min(ELEV_M)) %>%
     mutate(avg_grade = mean(ELEV_M)) %>%
-    mutate(difference = c(NA, diff(ELEV_M))) %>%
+    mutate(difference = c(diff(ELEV_M), 0)) %>%
     na.omit(difference) %>%
     as.data.frame(trail_table)
 }
 
+testing2 <- slope_table(trail_tables("Porcupine Trail"))
 
 segment_tables <- lapply(aggregate, slope_table)
 slope_table_aggregate <- do.call("rbind", segment_tables) %>%
