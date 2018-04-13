@@ -76,18 +76,6 @@ total_change_grade <- function(trail_table){
     head(1)
 }
 
-## new function out of old function
-slope_table <- function(trail_table){  
-  contour_char %>%
-  st_join(trail_table, join = st_intersects, left=FALSE) %>%
-    group_by(name) %>%
-    mutate(total_grade = max(ELEV_M) - min(ELEV_M)) %>%
-    mutate(avg_grade = mean(ELEV_M)) %>%
-    mutate(difference = c(NA, diff(ELEV_M))) %>%
-    arrange(desc(difference)) %>%
-    na.omit(difference) %>%
-    as.data.frame(trail_table)
-}
 
 ## making a list of joined tables
 total_change_grade_tables <- lapply(aggregate, total_change_grade)
@@ -96,6 +84,22 @@ total_change_grade_tables <- lapply(aggregate, total_change_grade)
 grade_tables <- do.call("rbind", total_change_grade_tables) %>%
   dplyr::select(name, total_grade_meters = total_grade, avg_grade_meters = avg_grade, total_length, max_change_grade = difference)
 
+## new function out of old function
+slope_table <- function(trail_table){  
+  contour_char %>%
+  st_join(trail_table, join = st_intersects, left=FALSE) %>%
+    group_by(name) %>%
+    mutate(total_grade = max(ELEV_M) - min(ELEV_M)) %>%
+    mutate(avg_grade = mean(ELEV_M)) %>%
+    mutate(difference = c(NA, diff(ELEV_M))) %>%
+    na.omit(difference) %>%
+    as.data.frame(trail_table)
+}
+
+
+segment_tables <- lapply(aggregate, slope_table)
+slope_table_aggregate <- do.call("rbind", segment_tables) %>%
+  dplyr::select(name, total_grade_meters = total_grade, avg_grade_meters = avg_grade, total_length, evelation = ELEV_M, seg_length = SHAPE_LEN, difference)
 
 ```
 
