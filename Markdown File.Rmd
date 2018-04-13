@@ -108,3 +108,4 @@ scoring <- grade_tables %>%
 ```
 
 summarise(total_score = score + score)
+Percent elevation change
