@@ -76,6 +76,19 @@ total_change_grade <- function(trail_table){
     head(1)
 }
 
+## new function out of old function
+slope_table <- function(trail_table){  
+  contour_char %>%
+  st_join(trail_table, join = st_intersects, left=FALSE) %>%
+    group_by(name) %>%
+    mutate(total_grade = max(ELEV_M) - min(ELEV_M)) %>%
+    mutate(avg_grade = mean(ELEV_M)) %>%
+    mutate(difference = c(NA, diff(ELEV_M))) %>%
+    arrange(desc(difference)) %>%
+    na.omit(difference) %>%
+    as.data.frame(trail_table)
+}
+
 ## making a list of joined tables
 total_change_grade_tables <- lapply(aggregate, total_change_grade)
 
