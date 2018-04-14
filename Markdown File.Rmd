@@ -18,7 +18,23 @@ library(tidyverse)
 
 Aggregating trail segments: **Do lengths change based on projection?
 ```{r}
+macleish_trails <- macleish_layers[["trails"]] %>%
+  st_transform(32119)
+
+proj4_aea <- "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"
+
+total_trails_test <- macleish_layers[["trails"]] %>%
+  st_transform(proj4_aea) %>%
+  group_by(name) %>%
+  summarize(num_segments = n(), 
+            total_length = sum(st_length(geometry)))
+
 total_trails <- macleish_layers[["trails"]] %>%
+    group_by(name) %>%
+  summarize(num_segments = n(), 
+            total_length = sum(st_length(geometry)))
+
+total_trails1 <-  macleish_trails %>%
   group_by(name) %>%
   summarize(num_segments = n(), 
             total_length = sum(st_length(geometry)))
@@ -92,6 +108,7 @@ slope_table <- function(trail_table){
     mutate(total_grade = max(ELEV_M) - min(ELEV_M)) %>%
     mutate(avg_grade = mean(ELEV_M)) %>%
     mutate(difference = c(diff(ELEV_M), 0)) %>%
+    mutate(seg_length = st_length(trail_table$geometry)) %>%
     na.omit(difference) %>%
     as.data.frame(trail_table)
 }
@@ -100,7 +117,7 @@ testing2 <- slope_table(trail_tables("Porcupine Trail"))
 
 segment_tables <- lapply(aggregate, slope_table)
 slope_table_aggregate <- do.call("rbind", segment_tables) %>%
-  dplyr::select(name, total_grade_meters = total_grade, avg_grade_meters = avg_grade, total_length, evelation = ELEV_M, seg_length = SHAPE_LEN, difference)
+  dplyr::select(name, total_grade_meters = total_grade, avg_grade_meters = avg_grade, total_length, evelation = ELEV_M, difference)
 
 ```
 
