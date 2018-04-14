@@ -103,12 +103,13 @@ grade_tables <- do.call("rbind", total_change_grade_tables) %>%
 ## new function out of old function
 slope_table <- function(trail_table){  
   contour_char %>%
+    #mutate(seg_intersect_geom = overGeomGeom(contour_char, trail_table)) %>%
   st_join(trail_table, join = st_intersects, left=FALSE) %>%
     group_by(name) %>%
     mutate(total_grade = max(ELEV_M) - min(ELEV_M)) %>%
     mutate(avg_grade = mean(ELEV_M)) %>%
     mutate(difference = c(diff(ELEV_M), 0)) %>%
-    #mutate(seg_intersect_length = st_length(seg_intersect_geom)) %>%
+   # mutate(seg_intersect_length = st_length(seg_intersect_geom)) %>%
     na.omit(difference) %>%
     as.data.frame(trail_table)
 }
