@@ -207,6 +207,19 @@ total_change_grade &lt;- function(trail_table){
     head(1)
 }
 
+## new function out of old function
+slope_table &lt;- function(trail_table){  
+  contour_char %&gt;%
+  st_join(trail_table, join = st_intersects, left=FALSE) %&gt;%
+    group_by(name) %&gt;%
+    mutate(total_grade = max(ELEV_M) - min(ELEV_M)) %&gt;%
+    mutate(avg_grade = mean(ELEV_M)) %&gt;%
+    mutate(difference = c(NA, diff(ELEV_M))) %&gt;%
+    arrange(desc(difference)) %&gt;%
+    na.omit(difference) %&gt;%
+    as.data.frame(trail_table)
+}
+
 ## making a list of joined tables
 total_change_grade_tables &lt;- lapply(aggregate, total_change_grade)</code></pre>
 <pre><code>## although coordinates are longitude/latitude, st_intersects assumes that they are planar
@@ -225,13 +238,19 @@ grade_tables &lt;- do.call(&quot;rbind&quot;, total_change_grade_tables) %&gt;%
 <pre class="r"><code>scoring &lt;- grade_tables %&gt;%
   mutate(total_grade_score = if_else(total_grade_meters &lt;= 5, 1, if_else(total_grade_meters &gt; 5 &amp; total_grade_meters &lt;= 20, 2, if_else(total_grade_meters &gt; 20 &amp; total_grade_meters &lt; 40, 3, if_else(total_grade_meters &gt;= 40 &amp; total_grade_meters &lt;= 50, 4,
          ifelse(total_grade_meters &gt; 50, 5, 5)))))) %&gt;%
-  mutate(total_length_score = if_else(max_change_grade &lt;= 5, 1,
+  mutate(max_change_score = if_else(max_change_grade &lt;= 5, 1,
                                       if_else(max_change_grade &gt; 5 &amp; max_change_grade &lt;= 15, 2,
                                               if_else(max_change_grade &gt; 15 &amp; max_change_grade &lt;= 30, 3,
                                                       if_else(max_change_grade &gt; 30 &amp; max_change_grade &lt;= 45, 4,
                                                               if_else(max_change_grade &gt; 45 &amp; max_change_grade &lt; 60, 5,
-                                                                      if_else(max_change_grade &gt;= 60, 6, 6)))))))</code></pre>
-<p>summarise(total_score = score + score)</p>
+                                                                      if_else(max_change_grade &gt;= 60, 6, 6))))))) %&gt;%
+  mutate(total_length = parse_number(total_length)) %&gt;%
+  mutate(total_length_score = if_else(total_length &lt;= 500, 1,
+                                      if_else(total_length &gt; 500 &amp; total_length &lt;= 1000, 2, 
+                                              if_else(total_length &gt; 1000 &amp; total_length &lt;= 1500, 3,
+                                                      if_else(total_length &gt; 1500 &amp; total_length &lt;= 2000, 4,
+                                                              if_else(total_length &gt; 2000, 5, 5))))))</code></pre>
+<p>summarise(total_score = score + score) Percent elevation change</p>
 
 
 
