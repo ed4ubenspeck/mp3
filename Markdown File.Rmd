@@ -20,6 +20,7 @@ library(raster)
 library(macleish)
 library(leaflet)
 library(tidyverse)
+library(colorRamps)
 ```
 ## Introduction
 <br><br>
@@ -51,7 +52,7 @@ total_trails <- macleish_layers[["trails"]] %>%
 contour_char <- macleish_layers[["contours_3m"]] %>%
   mutate(meter_char = as.character(ELEV_M))
 
-color_fact <- colorFactor("Greens", contour_char$meter_char)
+color_fact <- colorFactor(matlab.like(20), contour_char$meter_char)
 color_fact2 <- colorFactor("Set1", macleish_layers[["trails"]]$name)
 
 m <- leaflet() %>%
@@ -64,6 +65,8 @@ m <- leaflet() %>%
   #other stuff
   addPolygons(data = contour_char, popup = ~meter_char, color = ~color_fact(meter_char), weight = .5) %>%
   addPolylines(data = macleish_layers[["trails"]], weight = 4, popup = ~name, color = ~color_fact2(name))
+
+m
 
 ```
 
