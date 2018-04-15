@@ -61,8 +61,8 @@ m <- leaflet() %>%
   addProviderTiles("Esri.WorldTopoMap", group = "Topography") %>%
   addProviderTiles("Esri.WorldImagery", group = "Satellite") %>%
   addProviderTiles("Stamen.TonerLite", group = "Toner Lite") %>%
-    addPolygons(data = macleish_layers[["boundary"]], weight = 1, fillOpacity = 0.01, group = "Boundaries") %>%
   #other stuff
+    addPolygons(data = macleish_layers[["boundary"]], weight = 1, fillOpacity = 0.01, group = "Boundaries") %>%
   addPolygons(data = contour_char, popup = ~meter_char, color = ~color_fact(meter_char), weight = .5) %>%
   addPolylines(data = macleish_layers[["trails"]], weight = 4, popup = ~name, color = ~color_fact2(name))
 
