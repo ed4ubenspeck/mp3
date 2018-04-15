@@ -1,13 +1,19 @@
 ---
 title: "Markdown File"
-output: html_document
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: united
+    code_folding: hide
+  
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r, warning = FALSE, message = FALSE}
 library(sf)
 library(raster)
 library(macleish)
@@ -16,33 +22,16 @@ library(tidyverse)
 ```
 
 
-Aggregating trail segments: **Do lengths change based on projection?
-```{r}
-macleish_trails <- macleish_layers[["trails"]] %>%
-  st_transform(32119)
-
-proj4_aea <- "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"
-
-total_trails_test <- macleish_layers[["trails"]] %>%
-  st_transform(proj4_aea) %>%
-  group_by(name) %>%
-  summarize(num_segments = n(), 
-            total_length = sum(st_length(geometry)))
-
+## Data Wrangling
+```{r, warning = FALSE, message = FALSE}
 total_trails <- macleish_layers[["trails"]] %>%
     group_by(name) %>%
   summarize(num_segments = n(), 
             total_length = sum(st_length(geometry)))
 
-total_trails1 <-  macleish_trails %>%
-  group_by(name) %>%
-  summarize(num_segments = n(), 
-            total_length = sum(st_length(geometry)))
 ```
 
-
-Testing plots
-```{r}
+```{r, warning = FALSE, message = FALSE}
 
 contour_char <- macleish_layers[["contours_3m"]] %>%
   mutate(meter_char = as.character(ELEV_M))
@@ -63,9 +52,8 @@ m <- leaflet() %>%
 
 ```
 
-Total change in grade dataframe
-
-```{r}
+## Producing Informative Dataframe
+```{r, warning = FALSE, message = FALSE}
 ## list of trail names to apply to function
 trails_by_name <- c("Driveway", "Eastern Loop", "Easy Out", "entry trail", "Poplar Hill Road", "Porcupine Trail", "Snowmobile Trail", "Vernal Pool Loop", "Western Loop")
 
@@ -75,10 +63,10 @@ trail_tables <- function(trail_name){
   filter(name == trail_name)
 }
 
-## making a list of dataframes for each trail  
+## making a list of dataframes by each trail  
 aggregate <- lapply(trails_by_name, trail_tables)
 
-## function to join each trail table with elevation layer and find max grade, average grade, 
+## function to join each trail table with elevation layer and find max grade, average grade, and difference by segment
 total_change_grade <- function(trail_table){  
   contour_char %>%
   st_join(trail_table, join = st_intersects, left=FALSE) %>%
@@ -93,38 +81,37 @@ total_change_grade <- function(trail_table){
 }
 
 
-## making a list of joined tables
+## making a list of joined tables by trail name
 total_change_grade_tables <- lapply(aggregate, total_change_grade)
 
-## informative dataframe
+## informative dataframe reflecting trail information by name
 grade_tables <- do.call("rbind", total_change_grade_tables) %>%
   dplyr::select(name, total_grade_meters = total_grade, avg_grade_meters = avg_grade, total_length, max_change_grade = difference)
 
 ## new function out of old function
-slope_table <- function(trail_table){  
-  contour_char %>%
-    #mutate(seg_intersect_geom = overGeomGeom(contour_char, trail_table)) %>%
-  st_join(trail_table, join = st_intersects, left=FALSE) %>%
-    group_by(name) %>%
-    mutate(total_grade = max(ELEV_M) - min(ELEV_M)) %>%
-    mutate(avg_grade = mean(ELEV_M)) %>%
-    mutate(difference = c(diff(ELEV_M), 0)) %>%
-   # mutate(seg_intersect_length = st_length(seg_intersect_geom)) %>%
-    na.omit(difference) %>%
-    as.data.frame(trail_table)
-}
-
-testing2 <- slope_table(trail_tables("Porcupine Trail"))
-
-segment_tables <- lapply(aggregate, slope_table)
-slope_table_aggregate <- do.call("rbind", segment_tables) %>%
-  dplyr::select(name, total_grade_meters = total_grade, avg_grade_meters = avg_grade, total_length, seg_length, evelation = ELEV_M, difference)
-
+# slope_table <- function(trail_table){  
+#   contour_char %>%
+#     #mutate(seg_intersect_geom = overGeomGeom(contour_char, trail_table)) %>%
+#   st_join(trail_table, join = st_intersects, left=FALSE) %>%
+#     group_by(name) %>%
+#     mutate(total_grade = max(ELEV_M) - min(ELEV_M)) %>%
+#     mutate(avg_grade = mean(ELEV_M)) %>%
+#     mutate(difference = c(diff(ELEV_M), 0)) %>%
+#    # mutate(seg_intersect_length = st_length(seg_intersect_geom)) %>%
+#     na.omit(difference) %>%
+#     as.data.frame(trail_table)
+# }
+# 
+# testing2 <- slope_table(trail_tables("Porcupine Trail"))
+# 
+# segment_tables <- lapply(aggregate, slope_table)
+# slope_table_aggregate <- do.call("rbind", segment_tables) %>%
+#   dplyr::select(name, total_grade_meters = total_grade, avg_grade_meters = avg_grade, total_length, seg_length, evelation = ELEV_M, difference)
 ```
 
-First draft function for scoring trail length:
 
-```{r}
+## Scoring Function
+```{r, warning = FALSE, message = FALSE}
 
 scoring <- grade_tables %>%
   mutate(total_grade_score = if_else(total_grade_meters <= 5, 1, if_else(total_grade_meters > 5 & total_grade_meters <= 20, 2, if_else(total_grade_meters > 20 & total_grade_meters < 40, 3, if_else(total_grade_meters >= 40 & total_grade_meters <= 50, 4,
@@ -145,3 +132,25 @@ scoring <- grade_tables %>%
 
 summarise(total_score = score + score)
 Percent elevation change
+
+## Informative Plot
+```{r, warning = FALSE, message = FALSE}
+
+contour_char <- macleish_layers[["contours_3m"]] %>%
+  mutate(meter_char = as.character(ELEV_M))
+
+color_fact <- colorFactor("Greens", contour_char$meter_char)
+color_fact2 <- colorFactor("Set1", macleish_layers[["trails"]]$name)
+
+m <- leaflet() %>%
+  # Base groups
+  addTiles(group = "OpenStreetMap") %>%
+  addProviderTiles("Esri.WorldTopoMap", group = "Topography") %>%
+  addProviderTiles("Esri.WorldImagery", group = "Satellite") %>%
+  addProviderTiles("Stamen.TonerLite", group = "Toner Lite") %>%
+    addPolygons(data = macleish_layers[["boundary"]], weight = 1, fillOpacity = 0.01, group = "Boundaries") %>%
+  #other stuff
+  addPolygons(data = contour_char, popup = ~meter_char, color = ~color_fact(meter_char), weight = .5) %>%
+  addPolylines(data = macleish_layers[["trails"]], weight = 4, popup = ~name, color = ~color_fact2(name))
+
+```
