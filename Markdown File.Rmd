@@ -4,6 +4,7 @@ output:
   html_document:
     toc: true
     toc_float: true
+    toc_depth: 3
     theme: united
     code_folding: hide
   
@@ -20,9 +21,23 @@ library(macleish)
 library(leaflet)
 library(tidyverse)
 ```
+## Introduction
+<br><br>
+
+![Macleish Field Station](https://www.smith.edu/news/gatenew/wp-content/uploads/2015/07/unnamed-640x283.jpg)
+
+
+As institutions work to promote the meaningful usage of outdoor spaces, trails and other spatial resources for casual engagement with the landscape have become extremely popular for their versatility, relatively straightforward maintenance, and promotion of physical activity. With the promotion of their trail systems, organizations and institutional bodies often work to provide users with additional information on the trails they will be using; Pennsylvania’s Rail Trail system uses their [website and trailhead postings](http://visitpa.com/rails-trails) to provide users with trail maps and historical context for their journeys, and Acadia National Park [compiles information](https://www.nps.gov/acad/planyourvisit/hike-summit.htm) on the terrain of each trail, as well as a basic summary of the features users will be expected to negotiate. For our work with the Macleish Field Station data, inspired by the aforementioned efforts in trail labeling, we worked to produce difficulty ratings for each trail on the Macleish property based on the length of each trail and multiple dimensions of elevation data. Our work is meant to inform the answer to one crucial question: How can we use available spatial data to construct a robust and dynamic system of rating both existing and future trails on the Macleish property for difficulty, especially in the pursuit of encouraging a higher volume of students to use the trails?
+<br><br>
+
+![An arial view of the station and property](https://www.smith.edu/ceeds/images/photo_macleish3.jpg)
 
 
 ## Data Wrangling
+
+Our goal in producing this analysis is to provide an infrastructure for the rating of future trails; as such, we sought to perform as much of our data wrangling with functions as possible in the hope that minimal work would be required to glean insights into additional trails, given that those trails are described in the same spatial projection as the trails which informed the construction of our function pipeline. The elevation data for each trail are acquired through a join of the layers `trails` and `contours_3m`; for each trail, we calculate the total length, average elevation, total change in elevation, and greatest single change in elevation, and this information was used to inform our system for rating each trail on its difficulty.
+INSERT INFORMATION ABOUT RATING SYSTEM HERE
+
 ```{r, warning = FALSE, message = FALSE}
 total_trails <- macleish_layers[["trails"]] %>%
     group_by(name) %>%
@@ -52,7 +67,7 @@ m <- leaflet() %>%
 
 ```
 
-## Producing Informative Dataframe
+### Producing Informative Dataframe
 ```{r, warning = FALSE, message = FALSE}
 ## list of trail names to apply to function
 trails_by_name <- c("Driveway", "Eastern Loop", "Easy Out", "entry trail", "Poplar Hill Road", "Porcupine Trail", "Snowmobile Trail", "Vernal Pool Loop", "Western Loop")
@@ -110,7 +125,7 @@ grade_tables <- do.call("rbind", total_change_grade_tables) %>%
 ```
 
 
-## Scoring Function
+### Scoring Function
 ```{r, warning = FALSE, message = FALSE}
 
 scoring <- grade_tables %>%
@@ -133,7 +148,7 @@ scoring <- grade_tables %>%
 summarise(total_score = score + score)
 Percent elevation change
 
-## Informative Plot
+### Informative Plot
 ```{r, warning = FALSE, message = FALSE}
 
 contour_char <- macleish_layers[["contours_3m"]] %>%
@@ -154,3 +169,11 @@ m <- leaflet() %>%
   addPolylines(data = macleish_layers[["trails"]], weight = 4, popup = ~name, color = ~color_fact2(name))
 
 ```
+
+## Recommendation for Action
+
+When considering the potential applications of this analysis, the clearest path forward would be to use our findings to produce informative placards or signs on the Macleish property to display our ratings and provide visitors with some background information on the ratings as well as the trails themselves. This would be a joint effort between the SDS and Landscape Studies departments; the rating system is meaningful only insofar as visitors are concerned about the physically demanding aspects of hiking, while information on the features located along each trail and its history can enrich visitors’ experience of the environment and encourage them to think deeply about their role in shaping the physical landscape. In a preliminary capacity, the ratings could be added to the Macleish property’s webpage as an additional resource for groups or individuals looking to plan their trip to the Field Station. <br><br>
+For the implementation of the signage plan, costs, as well as environmental impact, should be minimal, and we do not anticipate any significant roadblocks. Wooden materials routered with lettering might be used to increase the versatility of the signage; should wetland conditions prohibit the installation of signs into the ground, these signs would work well mounted on the appropriate trees, and their being manufactured out of natural materials would help to combat problems associated with composite or potentially hazardous materials being integrated into the landscape. The Texas Department of Health estimates [^1] that a routered wood sign should cost \$5-\$25. Labor should be compensated starting at \$13.39 per hour [^2], with consideration given for the skills necessary to perform ground versus tree installation. Thought should be given as to how students could be involved in the production and installation of the signs; students might be given the opportunity to work with the Center for Design and Fabrication and CEEDS to produce signs and determine a plan for installation that is ecologically and cost-effectively sound. In total, the the project, assuming 10 hours of labor per sign/installation and \$13.50 per sign, should cost about $147.40 per trail. 
+
+[^1]: [*How to Build a Walking Trail - Texas Department of Health*](http://www.dshs.texas.gov/wellness/resource/trail.pdf)
+[^2]: [MIT Living Wage: Massachusetts](http://livingwage.mit.edu/states/25)
