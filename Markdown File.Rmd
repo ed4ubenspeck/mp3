@@ -22,6 +22,7 @@ library(leaflet)
 library(tidyverse)
 library(colorRamps)
 library(RColorBrewer)
+library(knitr)
 ```
 ## Introduction
 <br><br>
@@ -111,25 +112,8 @@ total_change_grade_tables <- lapply(aggregate, total_change_grade)
 grade_tables <- do.call("rbind", total_change_grade_tables) %>%
   dplyr::select(name, total_grade_meters = total_grade, avg_grade_meters = avg_grade, total_length, max_change_grade = difference)
 
-## new function out of old function
-# slope_table <- function(trail_table){  
-#   contour_char %>%
-#     #mutate(seg_intersect_geom = overGeomGeom(contour_char, trail_table)) %>%
-#   st_join(trail_table, join = st_intersects, left=FALSE) %>%
-#     group_by(name) %>%
-#     mutate(total_grade = max(ELEV_M) - min(ELEV_M)) %>%
-#     mutate(avg_grade = mean(ELEV_M)) %>%
-#     mutate(difference = c(diff(ELEV_M), 0)) %>%
-#    # mutate(seg_intersect_length = st_length(seg_intersect_geom)) %>%
-#     na.omit(difference) %>%
-#     as.data.frame(trail_table)
-# }
-# 
-# testing2 <- slope_table(trail_tables("Porcupine Trail"))
-# 
-# segment_tables <- lapply(aggregate, slope_table)
-# slope_table_aggregate <- do.call("rbind", segment_tables) %>%
-#   dplyr::select(name, total_grade_meters = total_grade, avg_grade_meters = avg_grade, total_length, seg_length, evelation = ELEV_M, difference)
+kable(grade_tables)
+
 ```
 
 
