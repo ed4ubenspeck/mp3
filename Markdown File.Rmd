@@ -29,7 +29,7 @@ library(RColorBrewer)
 ![Macleish Field Station](https://www.smith.edu/news/gatenew/wp-content/uploads/2015/07/unnamed-640x283.jpg)
 
 
-As institutions work to promote the meaningful usage of outdoor spaces, trails and other spatial resources for casual engagement with the landscape have become extremely popular for their versatility, relatively straightforward maintenance, and promotion of physical activity. With the promotion of their trail systems, organizations and institutional bodies often work to provide users with additional information on the trails they will be using; Pennsylvania’s Rail Trail system uses their [website and trailhead postings](http://visitpa.com/rails-trails) to provide users with trail maps and historical context for their journeys, and Acadia National Park [compiles information](https://www.nps.gov/acad/planyourvisit/hike-summit.htm) on the terrain of each trail, as well as a basic summary of the features users will be expected to negotiate. For our work with the Macleish Field Station data, inspired by the aforementioned efforts in trail labeling, we worked to produce difficulty ratings for each trail on the Macleish property based on the length of each trail and multiple dimensions of elevation data. Our work is meant to inform the answer to one crucial question: How can we use available spatial data to construct a robust and dynamic system of rating both existing and future trails on the Macleish property for difficulty, especially in the pursuit of encouraging a higher volume of students to use the trails?
+As institutions work to promote the meaningful usage of outdoor spaces, trails and other spatial resources for casual engagement with the landscape have become extremely popular for their versatility, relatively straightforward maintenance, and promotion of physical activity. With the promotion of their trail systems, organizations and institutional bodies often work to provide users with additional information on the trails they will be using; Pennsylvania’s Rail Trail system uses their [website and trailhead postings](http://visitpa.com/rails-trails) to provide users with trail maps and historical context for their journeys, and Acadia National Park [compiles information](https://www.nps.gov/acad/planyourvisit/hike-summit.htm) on the terrain of each trail, as well as a basic summary of the features users will be expected to negotiate. For our work with the Macleish Field Station data, inspired by the aforementioned efforts in trail labeling, we worked to produce difficulty ratings for each trail on the Macleish property based on the length of each trail and multiple dimensions of elevation data. Our work is meant to inform the answer to one crucial question: How can we use available spatial data to construct a robust and dynamic system of rating both existing and future trails on the Macleish property for difficulty, especially in the pursuit of encouraging a higher volume of students to use the trails? ^[[GitHub Repository](https://github.com/ed4ubenspeck/mp3)]
 <br><br>
 
 ![An arial view of the station and property](https://www.smith.edu/ceeds/images/photo_macleish3.jpg)
@@ -59,7 +59,7 @@ contour_char <- macleish_layers[["contours_3m"]] %>%
 color_fact <- colorFactor(matlab.like(20), contour_char$meter_char)
 color_fact2 <- colorFactor("Set1", macleish_layers[["trails"]]$name)
 
-m <- leaflet() %>%
+elevation_plot <- leaflet() %>%
   # Base groups
   addTiles(group = "OpenStreetMap") %>%
   addProviderTiles("Esri.WorldTopoMap", group = "Topography") %>%
@@ -71,7 +71,7 @@ m <- leaflet() %>%
   addPolylines(data = macleish_layers[["trails"]], weight = 4, popup = ~name, color = ~color_fact2(name)) ##%>%
   #addLegend(position = "bottomright", pal = color_fact(contour_char$meter_char), values = ~contour_char$meter_char)
 
-m
+elevation_plot
 
 ```
 
@@ -174,7 +174,7 @@ color_fact <- colorFactor("YlGn", contour_char$meter_char)
 color_fact2 <- colorFactor("Set1", macleish_layers[["trails"]]$name)
 score_fact <- colorFactor(c("red", "blue", "yellow"), scores_sf$difficulty)
 
-m <- leaflet() %>%
+trail_rating_plot <- leaflet() %>%
   # Base groups
   addTiles(group = "OpenStreetMap") %>%
   addProviderTiles("Esri.WorldTopoMap", group = "Topography") %>%
@@ -189,7 +189,7 @@ m <- leaflet() %>%
             values = ~scores_sf$difficulty,
             title = "Trail Difficulty")
 
-m
+trail_rating_plot
 ```
 
 ## Recommendation for Action
