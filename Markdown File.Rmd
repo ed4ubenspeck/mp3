@@ -40,9 +40,6 @@ As institutions work to promote the meaningful usage of outdoor spaces, trails h
 
 Our goal in producing this analysis is to provide an infrastructure for the rating of future trails; as such, we sought to perform as much of our data wrangling with functions as possible in the hope that minimal work would be required to glean insights into additional trails, given that those trails are described in the same spatial projection as the trails we have used. The elevation data for each trail are acquired through a join of the layers `trails` and `contours_3m`; for each trail, we calculate the total length, average elevation, total change in elevation, and greatest single change in elevation, and this information was used to inform our system for rating each trail on its difficulty.
 
-## Rating System
-
-Each category is broken down into 5 different groups and assigned a score between 1 and 5. The trails in the easiest group for a category(i.e. a trail with a length of less than 500 meters) is assigned a score of 1 for that particular category, while a trail in the hardest group (ie. a trail longer than 2000 meters) is assigned a score of 5. Then, each trail's scores in each category are summed and then divided by three (the number of categories) to give the trail an overall score. If the score is below 1.5, the trail is easy. If it is above 1.5 but less than 3.5, it is moderate. Any trail above 3.5 is a difficult one. These trails are plotted and color coded with a corresponding legend to allow hikers to easily see what kind of hike they’ll be embarking on.
 
 ```{r, warning = FALSE, message = FALSE}
 total_trails <- macleish_layers[["trails"]] %>%
@@ -52,6 +49,7 @@ total_trails <- macleish_layers[["trails"]] %>%
 
 ```
 
+### Initial Plot
 ```{r, warning = FALSE, message = FALSE}
 
 contour_char <- macleish_layers[["contours_3m"]] %>%
@@ -116,6 +114,9 @@ kable(grade_tables)
 
 ```
 
+## Rating System
+
+Each category is broken down into 5 different groups and assigned a score between 1 and 5. The trails in the easiest group for a category(i.e. a trail with a length of less than 500 meters) is assigned a score of 1 for that particular category, while a trail in the hardest group (ie. a trail longer than 2000 meters) is assigned a score of 5. Then, each trail's scores in each category are summed and then divided by three (the number of categories) to give the trail an overall score. If the score is below 1.5, the trail is easy. If it is above 1.5 but less than 3.5, it is moderate. Any trail above 3.5 is a difficult one. These trails are plotted and color coded with a corresponding legend to allow hikers to easily see what kind of hike they’ll be embarking on.
 
 ### Scoring Function
 ```{r, warning = FALSE, message = FALSE}
